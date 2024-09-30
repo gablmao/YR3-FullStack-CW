@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Apply for After School Classes</title>
+    <link rel="stylesheet" href="style.css">
+    <!-- Vue integration here -->
+    <!--script src="https://unpkg.com/vue"></script-->
+    <script src="https://unpkg.com/vue@2.7.8/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="app">
+        <header id="header">
+            <h1>After School Classes</h1>
+            <!-- Pressing updates HTML to show items added in cart -->
+            <button v-on:click="showCheckout"> {{ cartItemCount }} View Cart</button>
+        </header>
+
+        <!-- state when IN checkout-->
+        <div v-if="showCheckout">
+            <p>checkout test</p>
+        </div>
+
+        <!-- state when NOT in checkout -->
+        <div v-else>
+            <!-- Example lesson to sell in front page -->
+            <h1>Subject: <span v-text="product.name"></span></h1>
+            <p>Location: <span v-text="product.place"></span></p>
+            <p>Number of Slots left: <span v-text="product.slots"></span></p>
+            <p>Price: <span v-text="product.price"></span></p>
+            <button id="addToCart" v-on:click="addItemToCart" v-if="canBeAddedToCart">Add to Cart</button>
+            <button id="addToCart" disabled="disabled" v-else>Out of Stock</button>
+            <!-- Example lesson to sell in front page -->
+        </div>
+
+        <footer id="footer">
+            <p>footer here</p>
+        </footer>
+
+    </div>
+
+    <script>
+        let app = new Vue({
+            el: '#app',
+            data: { //store redundant data about product here
+                product: {
+                    id: 1,
+                    name: "Test product name",
+                    place: "Test location",
+                    slots: 5,
+                    price: 0,
+                },
+                cart: [], //store items added to cart here
+                showCheckout: false,  //state to show checkout page
+            },
+            methods: {
+                addItemToCart: function () {
+                    this.cart.push(this.product.id); //add product to cart array
+                    this.product.slots -= 1;
+                },
+                showCheckout: function () {
+                    this.showCheckout = this.showCheckout ? false :
+                    true; //toggles between false and true when pressed
+                },
+            },
+            computed: {
+                cartItemCount: function () {
+                    return this.cart.length; //return number of items in cart
+                },
+
+                canBeAddedToCart: function () { //using v-if and v-else, gray out button if < 0
+                    return this.product.slots > 0; //return true if there are slots left
+                },
+            },
+        });
+    </script>
+</body>
+
+</html>
