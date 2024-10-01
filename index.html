@@ -16,27 +16,28 @@
         <header id="header">
             <h1>After School Classes</h1>
             <!-- Pressing updates HTML to show items added in cart -->
-            <button v-on:click="toggleCheckoutPage" > {{ cartItemCount }} View Cart</button>  <!-- {{}} to display number in vue data -->
+            <button v-on:click="toggleCheckoutPage"> {{ cartItemCount }} View Cart</button>
+            <!-- {{}} to display number in vue data -->
         </header>
 
         <!-- state when IN checkout-->
         <div v-if="showCheckout">
             <p>checkout test</p>
-            <button v-on:click="toggleOrderPage">Place Order</button>  <!-- to expand on pls -->
+            <button>Place Order</button> <!-- to expand on pls -->
         </div>
 
         <!-- state when IN placing order-->
+        <!-- to add pls -->
 
-        
 
         <!-- state when NOT in checkout -->
-        <div v-else>
+        <div v-else v-for="product in products">
             <!-- Example lesson to sell in front page -->
             <h1>Subject: <span v-text="product.name"></span></h1>
             <p>Location: <span v-text="product.place"></span></p>
             <p>Number of Slots left: <span v-text="product.slots"></span></p>
             <p>Price: <span v-text="product.price"></span></p>
-            <button id="addToCart" v-on:click="addItemToCart" v-if="canBeAddedToCart">Add to Cart</button>
+            <button id="addToCart" v-if="canBeAddedToCart" v-on:click="addItemToCart">Add to Cart</button>
             <button id="addToCart" disabled="disabled" v-else>Out of Stock</button>
             <!-- Example lesson to sell in front page -->
         </div>
@@ -50,21 +51,30 @@
     <script>
         let app = new Vue({
             el: '#app',
-            data: { //store redundant data about product here
-                product: {
+            data: { //array to store array items
+                products: [{
                     id: 1,
                     name: "Test product name",
                     place: "Test location",
                     slots: 5,
-                    price: 0,
-                },
+                    price: 10,
+                }, {
+                    id: 2,
+                    name: "Test product name number 2",
+                    place: "Test location over there",
+                    slots: 3,
+                    price: 21,
+                }],
                 cart: [], //store items added to cart here
-                showCheckout: false,  //state to show checkout page
+                showCheckout: false, //state to show checkout page
             },
             methods: {
+                //add product to cart array and reduce slots by 1
                 addItemToCart: function () {
-                    this.cart.push(this.product.id); //add product to cart array
-                    this.product.slots -= 1;
+                    for (let i = 0; this.products.length > 0; i++) {
+                        this.cart.push("test");
+                        products[i].slots -= 1;
+                    }
                 },
                 toggleCheckoutPage: function () {
                     // toggles showCheckout state to flip between checkout and not checkout
@@ -73,11 +83,11 @@
             },
             computed: {
                 cartItemCount: function () {
-                    return this.cart.length; //return number of items in cart
+                    return this.cart.length;
                 },
 
-                canBeAddedToCart: function () { //using v-if and v-else, gray out button if < 0
-                    return this.product.slots > 0; //return true if there are slots left
+                canBeAddedToCart: function () { //creates new array of products that have slots > 0
+                    return this.products.filter(product => product.slots > 0);
                 },
             },
         });
