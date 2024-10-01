@@ -16,13 +16,18 @@
         <header id="header">
             <h1>After School Classes</h1>
             <!-- Pressing updates HTML to show items added in cart -->
-            <button v-on:click="showCheckout"> {{ cartItemCount }} View Cart</button>
+            <button v-on:click="toggleCheckoutPage" > {{ cartItemCount }} View Cart</button>  <!-- {{}} to display number in vue data -->
         </header>
 
         <!-- state when IN checkout-->
         <div v-if="showCheckout">
             <p>checkout test</p>
+            <button v-on:click="toggleOrderPage">Place Order</button>  <!-- to expand on pls -->
         </div>
+
+        <!-- state when IN placing order-->
+
+        
 
         <!-- state when NOT in checkout -->
         <div v-else>
@@ -61,9 +66,9 @@
                     this.cart.push(this.product.id); //add product to cart array
                     this.product.slots -= 1;
                 },
-                showCheckout: function () {
-                    this.showCheckout = this.showCheckout ? false :
-                    true; //toggles between false and true when pressed
+                toggleCheckoutPage: function () {
+                    // toggles showCheckout state to flip between checkout and not checkout
+                    this.showCheckout = !this.showCheckout;
                 },
             },
             computed: {
