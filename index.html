@@ -31,7 +31,8 @@
             <div>
                 <h2>Order Details</h2>
                 <strong>First Name:</strong>
-                <!-- v-model affect html inputs and select. when inputted, the vue data is updated -->
+                <!-- v-model affect html inputs, buttons and more. 
+                 when inputted, the vue data is updated -->
                 <input type="text" v-model="order.firstName">
                 <strong>Last Name:</strong>
                 <input type="text" v-model="order.lastName">
@@ -47,7 +48,7 @@
             <p>Number of Slots left: <span v-text="product.slots"></span></p>
             <p>Price: <span v-text="product.price"></span></p>
             <button id="addToCart" v-if="canBeAddedToCart" v-on:click="addItemToCart">Add to Cart</button>
-            <button id="addToCart" disabled="disabled" v-else>Out of Stock</button>
+            <button id="addToCart"  v-else disabled="disabled">Out of Stock</button>
             <!-- Example lesson to sell in front page -->
         </div>
 
@@ -65,7 +66,7 @@
                     id: 1,
                     name: "Test product name",
                     place: "Test location",
-                    slots: 5,
+                    slots: 3,
                     price: 10,
                 }, {
                     id: 2,
@@ -86,7 +87,7 @@
                 addItemToCart: function () {
                     for (let i = 0; this.products.length > 0; i++) {
                         this.cart.push("test");
-                        products[i].slots -= 1;
+                        this.products[i].slots -= 1;
                     }
                 },
                 toggleCheckoutPage: function () {
@@ -104,8 +105,15 @@
                     return this.cart.length;
                 },
 
-                canBeAddedToCart: function () { //creates new array of products that have slots > 0
-                    return this.products.filter(product => product.slots > 0);
+                canBeAddedToCart: function () { 
+                    for (let i=0; this.products.length > 0; i++){
+                        if (this.products[i].slots > 0){
+                            return true;
+                        }
+                        else {
+                            return false;
+                        }
+                    }
                 },
             },
         });
