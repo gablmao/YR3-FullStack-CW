@@ -22,13 +22,22 @@
 
         <!-- state when IN checkout-->
         <div v-if="showCheckout">
-            <p>checkout test</p>
-            <button>Place Order</button> <!-- to expand on pls -->
+            <h1>Checkout</h1>
+            <div>
+                <h2>Cart</h2>
+                <p>empty</p>
+            </div>
+
+            <div>
+                <h2>Order Details</h2>
+                <strong>First Name:</strong>
+                <!-- v-model affect html inputs and select. when inputted, the vue data is updated -->
+                <input type="text" v-model="order.firstName">
+                <strong>Last Name:</strong>
+                <input type="text" v-model="order.lastName">
+                <button v-on:click="submitForm">Place Order</button> <!-- to expand on pls -->
+            </div>
         </div>
-
-        <!-- state when IN placing order-->
-        <!-- to add pls -->
-
 
         <!-- state when NOT in checkout -->
         <div v-else v-for="product in products">
@@ -67,6 +76,10 @@
                 }],
                 cart: [], //store items added to cart here
                 showCheckout: false, //state to show checkout page
+                order: { //store order details here
+                    firstName: "",
+                    lastName: "",
+                },
             },
             methods: {
                 //add product to cart array and reduce slots by 1
@@ -79,6 +92,11 @@
                 toggleCheckoutPage: function () {
                     // toggles showCheckout state to flip between checkout and not checkout
                     this.showCheckout = !this.showCheckout;
+                },
+
+                // temporary alert to show order submitted
+                submitForm: function () {
+                    alert("Order submitted");
                 },
             },
             computed: {
