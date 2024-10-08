@@ -5,6 +5,12 @@
     padding: 1em;
 }
 
+#product{
+    outline: auto;
+    border: #333;
+    border-radius: 1px;
+    padding: 1em;
+}
 
 #footer {
     background-color: #333;

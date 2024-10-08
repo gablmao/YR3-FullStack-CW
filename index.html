@@ -20,12 +20,22 @@
             <!-- {{}} to display number in vue data -->
         </header>
 
+        <div id="sorts">
+
+            <label> <input type="radio" id="ascending" name="options" v-on:click="sortAscend">
+                Ascending Order </label>
+            <label> <input type="radio" id="descending" name="options" v-on:click="sortDescend">
+                Descending Order</label>
+            <button v-on:click="clearFilters">Clear Filters</button>
+
+        </div>
+
+
         <!-- state when IN checkout-->
         <div v-if="showCheckout">
             <h1>Checkout</h1>
-            <div>
-                <h2>Cart</h2>
-                <p>empty</p>
+            <div v-for="product in cart">
+                <p>Product ID: <span v-text="product.id"></span></p>
             </div>
 
             <div>
@@ -40,16 +50,19 @@
             </div>
         </div>
 
+
         <!-- state when NOT in checkout -->
-        <div v-else v-for="product in products">
-            <!-- Example lesson to sell in front page -->
-            <h1>Subject: <span v-text="product.name"></span></h1>
-            <p>Location: <span v-text="product.place"></span></p>
-            <p>Number of Slots left: <span v-text="product.slots"></span></p>
-            <p>Price: <span v-text="product.price"></span></p>
-            <button id="addToCart" v-if="canBeAddedToCart(product)" v-on:click="addItemToCart(product)">Add to Cart</button>
-            <button id="addToCart"  v-else disabled="disabled">Out of Stock!</button>
-            <!-- Example lesson to sell in front page -->
+        <div id="product" v-else v-for="product in products">
+
+            <h1>Subject: {{ product.name }}</h1>
+            <img v-bind:src="product.image" height="200"> </img>
+            <p>Location: {{ product.place }}</p>
+            <p>Number of Slots left: {{ product.slots }}</p>
+            <p>Price: {{ product.price }}</p>
+            <button id="addToCart" v-if="canBeAddedToCart(product)" v-on:click="addItemToCart(product)">Add to
+                Cart</button>
+            <button id="addToCart" v-else disabled="disabled">Out of Stock!</button>
+
         </div>
 
         <footer id="footer">
@@ -63,6 +76,7 @@
         let app = new Vue({
             el: '#app',
             data: { //array to store array items
+                originalList: products,
                 products: products,
                 cart: [], //store items added to cart here
                 showCheckout: false, //state to show checkout page
@@ -73,7 +87,7 @@
             },
             methods: {
                 //add product to cart array and reduce slots by 1
-                addItemToCart: function (product) {  //product from products is passed in as an argument
+                addItemToCart: function (product) { //product from products is passed in as an argument
                     this.cart.push(product.id);
                     product.slots -= 1;
                 },
@@ -82,7 +96,23 @@
                     this.showCheckout = !this.showCheckout;
                 },
 
-                canBeAddedToCart: function (product) { 
+                sortAscend: function () {
+                    return this.products.sort((a, b) => a.price - b.price);
+                },
+
+                sortDescend: function () {
+                    return this.products.sort((a, b) => b.price - a.price);
+                },
+
+                clearFilters: function () {
+                    const radios = document.querySelectorAll('input[name="options"]');
+                    radios.forEach(radio => {
+                        radio.checked = false;
+                    });
+                    return this.products = this.originalList;
+                },
+
+                canBeAddedToCart: function (product) {
                     if (product.slots > 0) {
                         return true;
                     } else {
