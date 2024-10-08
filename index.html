@@ -35,7 +35,8 @@
         <div v-if="showCheckout">
             <h1>Checkout</h1>
             <div v-for="product in cart">
-                <p>Product ID: <span v-text="product"></span></p>
+                <p>Product ID: {{ product }} <button v-on:click="removeItemFromCart(product)">Remove</button></p>
+                
             </div>
 
             <div>
@@ -91,6 +92,18 @@
                     this.cart.push(product.id);
                     product.slots -= 1;
                 },
+
+                removeItemFromCart: function (product) {
+                    //remove from cart
+                    this.cart.pop(product);
+                    //find in products list, increment by 1
+                    for (let i=0; products.length; i++) {
+                        if (products[i].id === product) {
+                            products[i].slots += 1;
+                        }
+                    }
+                },
+
                 toggleCheckoutPage: function () {
                     // toggles showCheckout state to flip between checkout and not checkout
                     this.showCheckout = !this.showCheckout;
@@ -105,10 +118,12 @@
                 },
 
                 clearFilters: function () {
+                    //deselect radio buttons
                     const radios = document.querySelectorAll('input[name="options"]');
                     radios.forEach(radio => {
                         radio.checked = false;
                     });
+                    //reset products to original list order
                     return this.products = this.originalList;
                 },
 
