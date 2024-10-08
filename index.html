@@ -47,8 +47,8 @@
             <p>Location: <span v-text="product.place"></span></p>
             <p>Number of Slots left: <span v-text="product.slots"></span></p>
             <p>Price: <span v-text="product.price"></span></p>
-            <button id="addToCart" v-if="canBeAddedToCart" v-on:click="addItemToCart">Add to Cart</button>
-            <button id="addToCart"  v-else disabled="disabled">Out of Stock</button>
+            <button id="addToCart" v-if="canBeAddedToCart(product)" v-on:click="addItemToCart(product)">Add to Cart</button>
+            <button id="addToCart"  v-else disabled="disabled">Out of Stock!</button>
             <!-- Example lesson to sell in front page -->
         </div>
 
@@ -63,13 +63,13 @@
             el: '#app',
             data: { //array to store array items
                 products: [{
-                    id: 1,
+                    id: 1001,
                     name: "Test product name",
                     place: "Test location",
                     slots: 3,
                     price: 10,
                 }, {
-                    id: 2,
+                    id: 1002,
                     name: "Test product name number 2",
                     place: "Test location over there",
                     slots: 3,
@@ -84,15 +84,21 @@
             },
             methods: {
                 //add product to cart array and reduce slots by 1
-                addItemToCart: function () {
-                    for (let i = 0; this.products.length > 0; i++) {
-                        this.cart.push("test");
-                        this.products[i].slots -= 1;
-                    }
+                addItemToCart: function (product) {  //product from products is passed in as an argument
+                    this.cart.push(product.id);
+                    product.slots -= 1;
                 },
                 toggleCheckoutPage: function () {
                     // toggles showCheckout state to flip between checkout and not checkout
                     this.showCheckout = !this.showCheckout;
+                },
+
+                canBeAddedToCart: function (product) { 
+                    if (product.slots > 0) {
+                        return true;
+                    } else {
+                        return false;
+                    }
                 },
 
                 // temporary alert to show order submitted
@@ -103,17 +109,6 @@
             computed: {
                 cartItemCount: function () {
                     return this.cart.length;
-                },
-
-                canBeAddedToCart: function () { 
-                    for (let i=0; this.products.length > 0; i++){
-                        if (this.products[i].slots > 0){
-                            return true;
-                        }
-                        else {
-                            return false;
-                        }
-                    }
                 },
             },
         });
