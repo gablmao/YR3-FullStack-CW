@@ -1,0 +1,62 @@
+let products = [{
+    id: 1001,
+    name: "Math",
+    place: "Test location",
+    image: "images/placeholder.jpg",
+    slots: 5,
+    price: 10,
+}, {
+    id: 1002,
+    name: "English Literature",
+    place: "Test location over there",
+    slots: 3,
+    price: 7,
+}, {
+    id: 1003,
+    name: "Geography",
+    place: "Test location over there",
+    slots: 7,
+    price: 8,
+}, {
+    id: 1004,
+    name: "History",
+    place: "Test location over there",
+    slots: 10,
+    price: 5,
+}, {
+    id: 1005,
+    name: "Debate Club",
+    place: "Test location over there",
+    slots: 21,
+    price: 7,
+}, {
+    id: 1006,
+    name: "Badminton",
+    place: "Test location over there",
+    slots: 6,
+    price: 4,
+}, {
+    id: 1007,
+    name: "Religious Studies",
+    place: "Test location over there",
+    slots: 3,
+    price: 9,
+}, {
+    id: 1008,
+    name: "Spanish",
+    place: "Test location over there",
+    slots: 2,
+    price: 7,
+}, {
+    id: 1009,
+    name: "Further Maths",
+    place: "Test location over there",
+    slots: 5,
+    price: 21,
+}, {
+    id: 1010,
+    name: "Science",
+    place: "Test location over there",
+    slots: 5,
+    price: 21,
+}]
