@@ -1,0 +1,25 @@
+{
+  "dependencies": {
+    "body-parser": "^1.20.2",
+    "express": "^4.21.1",
+    "lodash": "^4.17.21",
+    "mongodb": "^6.10.0",
+    "mongoose": "^8.2.2",
+    "nodejs": "^0.0.0",
+    "nodemon": "^3.1.0",
+    "path": "^0.12.7",
+    "pino": "^8.18.0",
+    "properties-reader": "^2.3.0",
+    "vue": "^3.5.8"
+  },
+  "name": "gabri",
+  "version": "1.0.0",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}
