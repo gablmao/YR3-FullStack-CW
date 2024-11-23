@@ -20,38 +20,19 @@
             <!-- {{}} to display number in vue data -->
         </header>
 
-        <div id="sorts">
-            <label v-on:click="getTopicSelect"> Select which to sort:
-                <input type="radio" name="topics" value="name">Name
-                <input type="radio" name="topics" value="place">Place
-                <input type="radio" name="topics" value="price">Price
-                <input type="radio" name="topics" value="slots">Slots
-            </label>
-
-            <br>
-
-            <label> <input type="radio" id="ascending" name="options" v-on:click="sortAscend">
-                Ascending Order </label>
-            <label> <input type="radio" id="descending" name="options" v-on:click="sortDescend">
-                Descending Order</label>
-
-            <p> Selected filters: {{ testSort }}</p>
-
-            <div v-if="">
-                <!-- if checkIfCanSort == true (on "None") -->
-                <button v-on:click="clearFilters">Clear Filters</button>
-            </div>
-
-
-        </div>
 
 
         <!-- state when IN checkout-->
         <div v-if="showCheckout">
             <h1>Your Cart</h1>
-            <div v-for="product in cart">
+            <div id="product" v-for="product in cart">
                 <!-- pls expand on this -->
-                <p>Product ID: {{ product }} <button v-on:click="removeItemFromCart(product)">Remove</button></p>
+                <!-- <h1>{{ product }}</h1> -->
+                <h1>Subject: {{ product.name }}</h1>
+                <img v-bind:src="product.image" height="200"> </img>
+                <p>Place: {{ product.place }}</p>
+                <p>Price: {{ product.price }}</p>
+                <button v-on:click="removeItemFromCart(product)">Remove</button></p>
 
             </div>
 
@@ -67,24 +48,52 @@
                 <input type="text" v-model="order.firstName">
                 <strong>Last Name:</strong>
                 <input type="text" v-model="order.lastName">
+                <strong>Phone Number:</strong>
+                <input type="text" v-model="order.phone">
                 <button v-on:click="submitForm">Place Order</button>
             </div>
         </div>
 
 
         <!-- state when NOT in checkout -->
-        <div id="product" v-else v-for="product in products">
+        <div v-else>
+            <div id="sorts">
 
-            <h1>Subject: {{ product.name }}</h1>
-            <img v-bind:src="product.image" height="200"> </img>
-            <p>Place: {{ product.place }}</p>
-            <p>Number of Slots left: {{ product.slots }}</p>
-            <p>Price: {{ product.price }}</p>
-            <button id="addToCart" v-if="canBeAddedToCart(product)" v-on:click="addItemToCart(product)">Add to
-                Cart</button>
-            <button id="addToCart" v-else disabled>Out of Stock!</button>
+                <label v-on:click="getTopicSelect"> Select which to sort:
+                    <input type="radio" name="topics" value="name" checked>Name
+                    <input type="radio" name="topics" value="place">Place
+                    <input type="radio" name="topics" value="price">Price
+                    <input type="radio" name="topics" value="slots">Slots
+                </label>
+                <br>
+                <label> <input type="radio" id="ascending" name="options" v-on:click="sortAscend" checked>
+                    Ascending Order </label>
+                <label> <input type="radio" id="descending" name="options" v-on:click="sortDescend">
+                    Descending Order</label>
+                <br>
+                <button v-on:click="clearFilters">Clear Filters</button>
+                <p> Selected filters: {{ testSort }}</p>
+
+            </div>
+
+
+            <div id="product" v-for="product in products">
+
+                <h1>Subject: {{ product.name }}</h1>
+                <img v-bind:src="product.image" height="200"> </img>
+                <p>Place: {{ product.place }}</p>
+                <p>Number of Slots left: {{ product.slots }}</p>
+                <p>Price: {{ product.price }}</p>
+                <button id="addToCart" v-if="canBeAddedToCart(product)" v-on:click="addItemToCart(product)">Add to
+                    Cart</button>
+                <button id="addToCart" v-else disabled>Out of Stock!</button>
+
+            </div>
+
 
         </div>
+
+
 
         <footer id="footer">
             <p>GM887 2024</p>
@@ -92,7 +101,7 @@
 
     </div>
 
-    <script src="product.js"></script>
+    <!-- <script src="product.js"></script> -->
     <script>
         let app = new Vue({
             el: '#app',
@@ -101,27 +110,30 @@
                 products: [],
                 cart: [], //store items added to cart here
                 showCheckout: false, //state to show checkout page
-                selectedTopic: "",
-                selectedOrder: "",
+                selectedTopic: "name", //default value
+                selectedOrder: "Ascending", //default value
                 order: { //store order details here
                     firstName: "",
                     lastName: "",
+                    phone: "",
+                    lessonID: [],
+                    spaces: [],
                 },
             },
             methods: {
                 //add product to cart array and reduce slots by 1
                 addItemToCart: function (product) { //product from products is passed in as an argument
-                    this.cart.push(product.id);
+                    this.cart.push(product);
                     product.slots -= 1;
                 },
 
                 removeItemFromCart: function (product) {
-                    //remove from cart
-                    this.cart.pop(product);
-                    //find in products list, increment by 1
+                    //find in products list, increment by 1, then remove from cart
                     for (let i = 0; products.length; i++) {
-                        if (products[i].id === product) {
-                            products[i].slots += 1;
+                        if (this.products[i].id == product.id) {
+                            this.products[i].slots += 1;
+                            //remove from cart
+                            this.cart.pop(product);
                         }
                     }
                 },
@@ -144,19 +156,15 @@
 
                 sortAscend: function () {
                     this.selectedOrder = "Ascending";
-                    if (this.selectedTopic == "name"){
+                    if (this.selectedTopic == "name") {
                         return this.products.sort((a, b) => a.name.localeCompare(b.name));
-                    }
-                    else if (this.selectedTopic == "place") {
-                        return this.products.sort((a, b) => a.name.localeCompare(b.name));
-                    }
-                    else if (this.selectedTopic == "price") {
+                    } else if (this.selectedTopic == "place") {
+                        return this.products.sort((a, b) => a.name.localeCompare(b.place));
+                    } else if (this.selectedTopic == "price") {
                         return this.products.sort((a, b) => a.price - b.price);
-                    }
-                    else if (this.selectedTopic == "slots") {
+                    } else if (this.selectedTopic == "slots") {
                         return this.products.sort((a, b) => a.slots - b.slots);
-                    }
-                    else {
+                    } else {
                         return this.products;
                     }
 
@@ -164,35 +172,22 @@
 
                 sortDescend: function () {
                     this.selectedOrder = "Descending";
-                    if (this.selectedTopic == "name"){
+                    if (this.selectedTopic == "name") {
                         return this.products.sort((a, b) => b.name.localeCompare(a.name));
-                    }
-                    else if (this.selectedTopic == "place") {
-                        return this.products.sort((a, b) => b.name.localeCompare(a.name));
-                    }
-                    else if (this.selectedTopic == "price") {
+                    } else if (this.selectedTopic == "place") {
+                        return this.products.sort((a, b) => b.name.localeCompare(a.place));
+                    } else if (this.selectedTopic == "price") {
                         return this.products.sort((a, b) => b.price - a.price);
-                    }
-                    else if (this.selectedTopic == "slots") {
+                    } else if (this.selectedTopic == "slots") {
                         return this.products.sort((a, b) => b.slots - a.slots);
-                    }
-                    else {
+                    } else {
                         return this.products;
                     }
                 },
 
                 clearFilters: function () {
-                    //deselect radio buttons
-                    const topics = document.querySelectorAll('input[name="topics"]');
-                    const orders = document.querySelectorAll('input[name="options"]');
-                    orders.forEach(radio => {
-                        radio.checked = false;
-                    });
-                    topics.forEach(radio => {
-                        radio.checked = false;
-                    });
-                    this.selectedOrder = "";
-                    this.selectedTopic = "";
+                    this.selectedTopic = "Ascending";
+                    this.selectedOrder = "name";
                     //reset products to original list order
                     this.products = []
                     this.products = this.originalList;
@@ -208,8 +203,17 @@
                 },
 
                 // temporary alert to show order submitted
+                //send order details to mongodb
                 submitForm: function () {
-                    alert("Order submitted");
+                    //alert("Order submitted");
+                    //retrieve first name, last name, phone number
+                    //update in mongodb
+                    //retrieve lessonID and spaces from cart
+                    //pick first id, go through cart list, see how many occur
+                    //increment space by 1 everytime it occurs
+                    //send lessonid and space to mongodb together (an array maybe?)
+                    //go next in cart list, if id is same as previous, go next
+                    //if id is different, repeat from step 2
                 },
             },
             computed: {
@@ -222,13 +226,23 @@
                     return str;
 
                 },
+
+                sortAscendDescend: function () {
+                    if (this.selectedOrder == "Ascending") {
+                        return sortAscend();
+                    } else if (this.selectedOrder == "Descending") {
+                        return sortDescend();
+                    } else {
+                        return this.products;
+                    }
+                },
             },
 
-            created: function() {
+            created: function () {
                 fetch("http://localhost:3000/collections/lessons").then(
-                    function(response) {
+                    function (response) {
                         response.json().then(
-                            function(json){
+                            function (json) {
                                 app.products = json;
                                 app.originalList = json;
                             }
