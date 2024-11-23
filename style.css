@@ -1,3 +1,9 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
 #header{
     background-color: #333;
     color: white;
@@ -5,11 +11,18 @@
     padding: 1em;
 }
 
+#sorts{
+    text-align: left;
+    padding: 1em;
+}
+
 #product{
+    margin: 1em;
     outline: auto;
     border: #333;
     border-radius: 1px;
     padding: 1em;
+    width: 25%;
 }
 
 #footer {
