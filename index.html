@@ -25,32 +25,40 @@
         <!-- state when IN checkout-->
         <div v-if="showCheckout">
             <h1>Your Cart</h1>
-            <div id="product" v-for="product in cart">
-                <!-- pls expand on this -->
-                <!-- <h1>{{ product }}</h1> -->
-                <h1>Subject: {{ product.name }}</h1>
-                <img v-bind:src="product.image" height="200"> </img>
-                <p>Place: {{ product.place }}</p>
-                <p>Price: {{ product.price }}</p>
-                <button v-on:click="removeItemFromCart(product)">Remove</button></p>
-
-            </div>
 
             <div v-if="cart.length == 0">
                 <p>Nothing to place order!</p>
             </div>
 
             <div v-else>
-                <h2>Order Details</h2>
-                <strong>First Name:</strong>
-                <!-- v-model affect html inputs, buttons and more. 
-                 when inputted, the vue data is updated -->
-                <input type="text" v-model="order.firstName">
-                <strong>Last Name:</strong>
-                <input type="text" v-model="order.lastName">
-                <strong>Phone Number:</strong>
-                <input type="text" v-model="order.phone">
-                <button v-on:click="submitForm">Place Order</button>
+                <div id="product" v-for="product in cart">
+                    <!-- pls expand on this -->
+                    <!-- <h1>{{ product }}</h1> -->
+                    <h1>Subject: {{ product.name }}</h1>
+                    <img v-bind:src="product.image" height="200"> </img>
+                    <p>Place: {{ product.place }}</p>
+                    <p>Price: {{ product.price }}</p>
+                    <button v-on:click="removeItemFromCart(product)">Remove</button></p>
+
+                </div>
+
+                <form @submit.prevent="submitOrder">
+                    <h2>Order Details</h2>
+                    <strong>First Name:</strong>
+                    <!-- v-model affect html inputs, buttons and more. 
+                     when inputted, the vue data is updated -->
+                    <input type="text" v-model.trim="order.firstName">
+                    <strong>Last Name:</strong>
+                    <input type="text" v-model.trim="order.lastName">
+                    <strong>Phone Number:</strong>
+                    <input type="text" v-model.number="order.phone">
+                    <p>first name: {{order.firstName}}</p>
+                    <p>last name: {{order.lastName}}</p>
+                    <p>phone number: {{order.phone}}</p>
+                    <button v-if="toggleOrderButton()" disabled> Fill to Order! </button>
+                    <button v-else v-on:click="submitOrder">Place Order</button>
+                </form>
+
             </div>
         </div>
 
@@ -59,34 +67,36 @@
         <div v-else>
             <div id="sorts">
 
-                <label v-on:click="getTopicSelect"> Select which to sort:
-                    <input type="radio" name="topics" value="name" checked>Name
-                    <input type="radio" name="topics" value="place">Place
-                    <input type="radio" name="topics" value="price">Price
-                    <input type="radio" name="topics" value="slots">Slots
+                <label> Select which to sort:
+                    <input type="radio" name="topics" value="name" v-model="selectedTopic" checked>Name
+                    <input type="radio" name="topics" value="place" v-model="selectedTopic">Place
+                    <input type="radio" name="topics" value="price" v-model="selectedTopic">Price
+                    <input type="radio" name="topics" value="slots" v-model="selectedTopic">Slots
+
                 </label>
                 <br>
-                <label> <input type="radio" id="ascending" name="options" v-on:click="sortAscend" checked>
-                    Ascending Order </label>
-                <label> <input type="radio" id="descending" name="options" v-on:click="sortDescend">
-                    Descending Order</label>
+                <label> Select how to sort it:
+                    <input type="radio" id="ascending" name="orders" v-model="selectedOrder" value="ascend" checked>
+                    Ascending Order
+                    <input type="radio" id="descending" name="orders" v-model="selectedOrder" value="descend" checked>
+                    Descending Order
+                </label>
                 <br>
                 <button v-on:click="clearFilters">Clear Filters</button>
                 <p> Selected filters: {{ testSort }}</p>
 
             </div>
 
-
-            <div id="product" v-for="product in products">
+            <div id="product" v-for="product in sortAscendDescend">
 
                 <h1>Subject: {{ product.name }}</h1>
                 <img v-bind:src="product.image" height="200"> </img>
                 <p>Place: {{ product.place }}</p>
                 <p>Number of Slots left: {{ product.slots }}</p>
                 <p>Price: {{ product.price }}</p>
-                <button id="addToCart" v-if="canBeAddedToCart(product)" v-on:click="addItemToCart(product)">Add to
+                <button v-if="canBeAddedToCart(product)" v-on:click="addItemToCart(product)">Add to
                     Cart</button>
-                <button id="addToCart" v-else disabled>Out of Stock!</button>
+                <button v-else disabled>Out of Stock!</button>
 
             </div>
 
@@ -106,12 +116,12 @@
         let app = new Vue({
             el: '#app',
             data: { //array to store array items
-                originalList: [],
                 products: [],
                 cart: [], //store items added to cart here
                 showCheckout: false, //state to show checkout page
                 selectedTopic: "name", //default value
-                selectedOrder: "Ascending", //default value
+                selectedOrder: "ascend", //default value
+                canOrder: false,
                 order: { //store order details here
                     firstName: "",
                     lastName: "",
@@ -122,7 +132,7 @@
             },
             methods: {
                 //add product to cart array and reduce slots by 1
-                addItemToCart: function (product) { //product from products is passed in as an argument
+                addItemToCart: function (product) { //product from products array is passed in as an argument
                     this.cart.push(product);
                     product.slots -= 1;
                 },
@@ -143,55 +153,10 @@
                     this.showCheckout = !this.showCheckout;
                 },
 
-                //retrieve and update selectedTopic data variable
-                getTopicSelect: function () {
-                    const topics = document.querySelectorAll('input[name="topics"]');
-
-                    for (i = 0; i < topics.length; i++) {
-                        if (topics[i].checked) {
-                            this.selectedTopic = topics[i].value;
-                        }
-                    }
-                },
-
-                sortAscend: function () {
-                    this.selectedOrder = "Ascending";
-                    if (this.selectedTopic == "name") {
-                        return this.products.sort((a, b) => a.name.localeCompare(b.name));
-                    } else if (this.selectedTopic == "place") {
-                        return this.products.sort((a, b) => a.name.localeCompare(b.place));
-                    } else if (this.selectedTopic == "price") {
-                        return this.products.sort((a, b) => a.price - b.price);
-                    } else if (this.selectedTopic == "slots") {
-                        return this.products.sort((a, b) => a.slots - b.slots);
-                    } else {
-                        return this.products;
-                    }
-
-                },
-
-                sortDescend: function () {
-                    this.selectedOrder = "Descending";
-                    if (this.selectedTopic == "name") {
-                        return this.products.sort((a, b) => b.name.localeCompare(a.name));
-                    } else if (this.selectedTopic == "place") {
-                        return this.products.sort((a, b) => b.name.localeCompare(a.place));
-                    } else if (this.selectedTopic == "price") {
-                        return this.products.sort((a, b) => b.price - a.price);
-                    } else if (this.selectedTopic == "slots") {
-                        return this.products.sort((a, b) => b.slots - a.slots);
-                    } else {
-                        return this.products;
-                    }
-                },
-
                 clearFilters: function () {
-                    this.selectedTopic = "Ascending";
-                    this.selectedOrder = "name";
+                    this.selectedTopic = "name";
+                    this.selectedOrder = "ascend";
                     //reset products to original list order
-                    this.products = []
-                    this.products = this.originalList;
-                    return this.products;
                 },
 
                 canBeAddedToCart: function (product) {
@@ -202,23 +167,66 @@
                     }
                 },
 
-                // temporary alert to show order submitted
+                toggleOrderButton: function () {
+                    if (this.order.firstName == "" || this.order.lastName == "" || this.order.phone == "") {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                },
+
                 //send order details to mongodb
-                submitForm: function () {
-                    //alert("Order submitted");
-                    //retrieve first name, last name, phone number
-                    //update in mongodb
-                    //retrieve lessonID and spaces from cart
-                    //pick first id, go through cart list, see how many occur
-                    //increment space by 1 everytime it occurs
-                    //send lessonid and space to mongodb together (an array maybe?)
-                    //go next in cart list, if id is same as previous, go next
-                    //if id is different, repeat from step 2
+                submitOrder: function () {
+                    //first step to sort out the lessonIDs and spaces
+                    for (let i = 0; i < this.cart.length; i++) {
+                        this.order.lessonID.push(this.cart[i].id);
+                        this.order.spaces.push(this.cart[i].slots);
+                    }
+
+                    //second step to package the order details ready to send to server
+                    const name = this.order.firstName + " " + this.order.lastName;
+                    const fullOrder = {
+                        name,
+                        phone: this.order.phone,
+                        lessonID: this.order.lessonID,
+                        spaces: this.order.spaces,
+                    };
+
+
+
+                    //final step which is to send the order to the server
+                    fetch("http://localhost:3000/collections/lessons", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify(fullOrder),
+                    }).then(
+                        function (response) {
+                            response.json().then(
+                                function (json) {
+                                    console.log(json);
+                                }
+                            )
+                        }
+                    )
                 },
             },
             computed: {
                 cartItemCount: function () {
                     return this.cart.length;
+                },
+
+                //keep count of how many of the same item is in the cart
+                //useful for the lessonID and spaces arrays
+                cartCount(id) {
+                    let count = 0;
+                    for (let i = 0; i < this.cart.length; i++) {
+                        if (this.cart[i] === id) {
+                            count++;
+                        }
+                    }
+                    return count;
                 },
 
                 testSort: function () {
@@ -228,10 +236,30 @@
                 },
 
                 sortAscendDescend: function () {
-                    if (this.selectedOrder == "Ascending") {
-                        return sortAscend();
-                    } else if (this.selectedOrder == "Descending") {
-                        return sortDescend();
+                    if (this.selectedOrder == "ascend") {
+                        if (this.selectedTopic == "name") {
+                            return this.products.sort((a, b) => a.name.localeCompare(b.name));
+                        } else if (this.selectedTopic == "place") {
+                            return this.products.sort((a, b) => a.name.localeCompare(b.place));
+                        } else if (this.selectedTopic == "price") {
+                            return this.products.sort((a, b) => a.price - b.price);
+                        } else if (this.selectedTopic == "slots") {
+                            return this.products.sort((a, b) => a.slots - b.slots);
+                        } else {
+                            return this.products;
+                        }
+                    } else if (this.selectedOrder == "descend") {
+                        if (this.selectedTopic == "name") {
+                            return this.products.sort((a, b) => b.name.localeCompare(a.name));
+                        } else if (this.selectedTopic == "place") {
+                            return this.products.sort((a, b) => b.name.localeCompare(a.place));
+                        } else if (this.selectedTopic == "price") {
+                            return this.products.sort((a, b) => b.price - a.price);
+                        } else if (this.selectedTopic == "slots") {
+                            return this.products.sort((a, b) => b.slots - a.slots);
+                        } else {
+                            return this.products;
+                        };
                     } else {
                         return this.products;
                     }
@@ -244,7 +272,6 @@
                         response.json().then(
                             function (json) {
                                 app.products = json;
-                                app.originalList = json;
                             }
                         )
                     }
