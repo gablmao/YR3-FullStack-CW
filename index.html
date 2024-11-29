@@ -31,9 +31,9 @@
             </div>
 
             <div v-else>
-                <div id="product" v-for="product in cart">
+                <div id="product" v-for="product in sortCartById">
                     <!-- pls expand on this -->
-                    <!-- <h1>{{ product }}</h1> -->
+                    <!-- <h1>{{ product.id }}</h1> -->
                     <h1>Subject: {{ product.name }}</h1>
                     <img v-bind:src="product.image" height="200"> </img>
                     <p>Place: {{ product.place }}</p>
@@ -41,12 +41,11 @@
                     <button v-on:click="removeItemFromCart(product)">Remove</button></p>
 
                 </div>
-
+                <h2>Order Details</h2>
                 <form @submit.prevent="submitOrder">
-                    <h2>Order Details</h2>
-                    <strong>First Name:</strong>
                     <!-- v-model affect html inputs, buttons and more. 
                      when inputted, the vue data is updated -->
+                    <strong>First Name:</strong>
                     <input type="text" v-model.trim="order.firstName">
                     <strong>Last Name:</strong>
                     <input type="text" v-model.trim="order.lastName">
@@ -139,7 +138,7 @@
 
                 removeItemFromCart: function (product) {
                     //find in products list, increment by 1, then remove from cart
-                    for (let i = 0; products.length; i++) {
+                    for (let i = 0; this.products.length; i++) {
                         if (this.products[i].id == product.id) {
                             this.products[i].slots += 1;
                             //remove from cart
@@ -177,14 +176,40 @@
 
                 //send order details to mongodb
                 submitOrder: function () {
+                    let count = 1;
+                    let newSlots = [];
+                    let newSlotsIndividual = 0;
+
                     //first step to sort out the lessonIDs and spaces
-                    for (let i = 0; i < this.cart.length; i++) {
-                        this.order.lessonID.push(this.cart[i].id);
-                        this.order.spaces.push(this.cart[i].slots);
+                    for (let i = 0; i < this.sortCartById.length; i++) {
+                        if (this.sortCartById.length == 1) {
+                            this.order.lessonID.push(this.sortCartById[i].id);
+                            this.order.spaces.push(count);
+                            count = 1;
+                            break;
+                        } else {
+                            j = i + 1;
+                            for (j; j < this.sortCartById.length; j++) {
+                                if (this.sortCartById[j].id == this.sortCartById[i].id) {
+                                    count++;
+                                } else {
+                                    break;
+                                }
+
+                            }
+                            this.order.lessonID.push(this.sortCartById[i].id);
+                            this.order.spaces.push(count);
+                            newSlots.push(this.sortCartById[i].slots - count);
+                            count = 1;
+                            i = j - 1;
+
+                        }
+
                     }
 
+
                     //second step to package the order details ready to send to server
-                    const name = this.order.firstName + " " + this.order.lastName;
+                    const name = (this.order.firstName + " " + this.order.lastName).trim();
                     const fullOrder = {
                         name,
                         phone: this.order.phone,
@@ -192,10 +217,8 @@
                         spaces: this.order.spaces,
                     };
 
-
-
-                    //final step which is to send the order to the server
-                    fetch("http://localhost:3000/collections/lessons", {
+                    //third step which is to send the order to the server
+                    fetch("http://localhost:3000/collections/orders", {
                         method: "POST",
                         headers: {
                             "Content-Type": "application/json",
@@ -203,13 +226,35 @@
                         body: JSON.stringify(fullOrder),
                     }).then(
                         function (response) {
-                            response.json().then(
-                                function (json) {
-                                    console.log(json);
-                                }
-                            )
+                            return response.json();
+                            alert("Order placed successfully!");
+                            //control.log(response.json())
                         }
                     )
+                    
+                    //fourth step update lesson space after order is placed
+                    for (let i of this.order.lessonID){
+
+                    }
+
+                    fetch("http://localhost:3000/collections/lessons/${id}", {
+                        method: "PUT",
+                        headers: {
+                            "Content-Type": "application/json",
+                        },
+                        body: JSON.stringify({
+                            slots:  newSlotsIndividual,
+                        }),
+                    })
+
+                    //reset the order details for new order
+                    this.firstName = "";
+                    this.lastName = "";
+                    this.phone = "";
+                    this.lessonID = [];
+                    this.spaces = [];
+                    this.cart = [];
+
                 },
             },
             computed: {
@@ -263,6 +308,10 @@
                     } else {
                         return this.products;
                     }
+                },
+
+                sortCartById: function () {
+                    return this.cart.sort((a, b) => a.id - b.id);
                 },
             },
 
