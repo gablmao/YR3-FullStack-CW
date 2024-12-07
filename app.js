@@ -76,8 +76,9 @@ let app = new Vue({
                 } else {
                     j = i + 1;
                     for (j; j < this.sortCartById.length; j++) {
+                        //go through the list and see how many duplicates there are
                         if (this.sortCartById[j].id == this.sortCartById[i].id) {
-                            count++;
+                            count++;  //increment how many of the same item is in the cart
                         } else {
                             break;
                         }
@@ -85,9 +86,9 @@ let app = new Vue({
                     }
                     this.order.lessonID.push(this.sortCartById[i].id);
                     this.order.spaces.push(count);
-                    newSlots.push(this.sortCartById[i].slots - count);
-                    count = 1;
-                    i = j - 1;
+                    newSlots.push(this.sortCartById[i].slots - count);  //to update to the database
+                    count = 1;  //reset count for the next unique item in the cart
+                    i = j - 1;  //skip the duplicates
 
                 }
 
@@ -113,8 +114,6 @@ let app = new Vue({
             }).then(
                 function (response) {
                     return response.json();
-                    alert("Order placed successfully!");
-                    //control.log(response.json())
                 }
             )
 
@@ -122,13 +121,13 @@ let app = new Vue({
             //the order and size for both lessonIDs and spaces arrays will always be the same
             for (let i = 0; i < this.order.spaces; i++) {
 
-                fetch("http://localhost:3000/collections/lessons/${this.order.lessonID[i]}", {
+                fetch("http://localhost:3000/collections/lessons/${ this.order.lessonID[i] }", {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
                     },
                     body: JSON.stringify({
-                        slots: this.sortCartById[i].slots,
+                        slots: newSlots[i].slots,
                     }),
                 }).then(
                     function (response) {
@@ -146,6 +145,7 @@ let app = new Vue({
             newSlots = [];
             this.cart = [];
 
+            alert("Order submitted successfully!");
         },
     },
     computed: {
