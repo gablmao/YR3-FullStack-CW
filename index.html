@@ -94,7 +94,7 @@
                 <img v-bind:src="product.image" height="200"> </img>
                 <p>Place: {{ product.place }}</p>
                 <p>Number of Slots left: {{ product.slots }}</p>
-                <p>Price: {{ product.price }}</p>
+                <p>Price: £{{ product.price }}</p>
                 <button v-if="canBeAddedToCart(product)" v-on:click="addItemToCart(product)">Add to
                     Cart</button>
                 <button v-else disabled>Out of Stock!</button>
