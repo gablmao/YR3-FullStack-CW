@@ -131,7 +131,7 @@ let app = new Vue({
                     }),
                 }).then(
                     function (response) {
-                        return response.json()
+                        return response.json();
                     });
 
             }
